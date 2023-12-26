@@ -1,0 +1,71 @@
+import numpy as np
+import matplotlib.pyplot as plt
+
+# 최적화할 함수 정의
+def func(x):
+    return x**2
+
+# 함수의 도함수 정의
+def derivative(x):
+    return 2*x
+
+# 경사 하강법을 이용한 최적화
+def gradient_descent(x, learning_rate, max_iterations, tol):
+    history = [x]
+
+    for i in range(max_iterations):
+        y = x - learning_rate * derivative(x)
+        history.append(y)
+
+        # 종료 조건: 기울기가 충분히 작아지면 종료
+        if abs(derivative(y)) < tol:
+            break
+
+        x = y  # x를 갱신
+
+    return history, x, i + 1  # 최적화가 진행된 횟수, 최소값에 대응하는 x와 f(x) 반환
+
+# 단순한 대입을 이용한 최적화
+def simple_optimization(x, max_iterations, tol):
+    history = [x]
+
+    for i in range(max_iterations):
+        x = x - 0.1 * func(x)  # 원 함수에 직접 대입
+        history.append(x)
+
+        # 종료 조건: 함수 값의 변화가 충분히 작아지면 종료
+        if abs(func(history[-1]) - func(history[-2])) < tol:
+            break
+
+    return history, x, i + 1  # 최적화가 진행된 횟수, 최소값에 대응하는 x와 f(x) 반환
+
+# 최적화 결과를 시각화
+def plot_optimization(history, method, title):
+    x_values = np.linspace(-5, 5, 100)
+    y_values = func(x_values)
+
+    plt.plot(x_values, y_values, label='Function: $y=x^2$')
+    plt.scatter(history, [func(x) for x in history], label=method)
+    plt.title(title)
+    plt.xlabel('x')
+    plt.ylabel('y')
+    plt.legend()
+    plt.show()
+
+# 초기값 설정
+initial_x = 3.0
+
+# 경사 하강법을 이용한 최적화 결과
+gd_history, gd_min_x, gd_iterations = gradient_descent(initial_x, 0.1, 100, 1e-3)
+
+# 단순한 대입을 이용한 최적화 결과
+so_history, so_min_x, so_iterations = simple_optimization(initial_x, 10000, 1e-3)
+
+# 최적화 결과를 시각화
+plot_optimization(gd_history, 'Gradient Descent', 'Comparison of Optimization Methods (Flexible Stopping Criteria)')
+plot_optimization(so_history, 'Simple Optimization (Direct Substitution)', 'Comparison of Optimization Methods (Flexible Stopping Criteria)')
+
+# 최적화가 진행된 횟수와 최소값에 대응하는 x와 f(x) 출력
+print(f"Gradient Descent: {gd_iterations} iterations, Minimum x: {gd_min_x:.4f}, Minimum f(x): {func(gd_min_x):.20f}")
+
+print(f"Simple Optimization: {so_iterations} iterations, Minimum x: {so_min_x}, Minimum f(x): {func(so_min_x)}")
